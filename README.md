@@ -322,22 +322,149 @@ Right now, Gradient Boosting is the best choice because:
 ✅ It has the highest macro-average recall, meaning it does slightly better at capturing other classes.
 ✅ Tree-based models generally handle structured data better than linear models like Logistic Regression or SVM.
 
-# Step 6 : Model Deployment with Streamlit
+# Step 6 : Applying Clustering models
+
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.cluster import KMeans, DBSCAN, SpectralClustering
+    from sklearn.mixture import GaussianMixture
+    from sklearn.metrics import silhouette_score
+    from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
+    from sklearn.decomposition import PCA
+
+    # Load dataset 
+    df = pd.read_csv('cleaned_phone_usage_data.csv')
+
+    # Select relevant features 
+    features = ['Screen Time (hrs/day)', 'Data Usage (GB/month)', 'Calls Duration (mins/day)',
+        'Number of Apps Installed', 'Social Media Time (hrs/day)',
+        'Streaming Time (hrs/day)', 'Gaming Time (hrs/day)']
+    X = df[features]
+
+    # Normalize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # --- K-Means Clustering ---
+    kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+    kmeans_labels = kmeans.fit_predict(X_scaled)
+    kmeans_silhouette = silhouette_score(X_scaled, kmeans_labels)
+    print(f'K-Means Silhouette Score: {kmeans_silhouette:.4f}')
+
+    # K-Means Silhouette Score: 0.0952
+ 
+    # --- Hierarchical Clustering ---
+    linkage_matrix = linkage(X_scaled, method='ward')
+    dendrogram(linkage_matrix)
+    plt.title("Hierarchical Clustering Dendrogram")
+    plt.show()
+    hier_labels = fcluster(linkage_matrix, 3, criterion='maxclust')
+    hier_silhouette = silhouette_score(X_scaled, hier_labels)
+    print(f'Hierarchical Clustering Silhouette Score: {hier_silhouette:.4f}')
+    
+    # Hierarchical Clustering Silhouette Score: 0.0459
+
+ <img width="365" alt="Image" src="https://github.com/user-attachments/assets/2958279b-c9f5-431d-9aff-3176c56952ea" />    
+
+    # --- DBSCAN ---
+    dbscan = DBSCAN(eps=1.5, min_samples=5)
+    dbscan_labels = dbscan.fit_predict(X_scaled)
+    dbscan_silhouette = silhouette_score(X_scaled, dbscan_labels) if len(set(dbscan_labels)) > 1 else None
+    print(f'DBSCAN Silhouette Score: {dbscan_silhouette}')
+
+    # DBSCAN Silhouette Score: None
+
+    # --- Gaussian Mixture Model ---
+    gmm = GaussianMixture(n_components=3, random_state=42)
+    gmm_labels = gmm.fit_predict(X_scaled)
+    gmm_silhouette = silhouette_score(X_scaled, gmm_labels)
+    print(f'GMM Silhouette Score: {gmm_silhouette:.4f}')
+
+    # GMM Silhouette Score: 0.0907
+
+    # --- Spectral Clustering ---
+    spectral = SpectralClustering(n_clusters=3, affinity='nearest_neighbors', random_state=42)
+    spectral_labels = spectral.fit_predict(X_scaled)
+    spectral_silhouette = silhouette_score(X_scaled, spectral_labels)
+    print(f'Spectral Clustering Silhouette Score: {spectral_silhouette:.4f}')
+
+    # Spectral Clustering Silhouette Score: 0.0854
+
+<img width="653" alt="Image" src="https://github.com/user-attachments/assets/225003bb-8ad4-479a-aab2-d90f60c92c33" />
+
+    
+# Step 7 : Model Deployment with Streamlit
 
     # Designing Streamlit app
 
     import streamlit as st
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
     import numpy as np
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.cluster import KMeans
 
-    st.title("Phone Usage Prediction App")
+    # Load Dataset 
+    df = pd.read_csv("cleaned_phone_usage_data.csv")  
 
-    age = st.number_input("Enter your age")
-    screen_time = st.number_input("Screen Time (hrs/day)")
-    data_usage = st.number_input("Data Usage (GB/month)")
+    # Feature selection
+    features = ['Screen Time (hrs/day)', 'Data Usage (GB/month)', 'Calls Duration (mins/day)',
+                'Number of Apps Installed', 'Social Media Time (hrs/day)',
+                'Streaming Time (hrs/day)', 'Gaming Time (hrs/day)']
+    X = df[features]
 
-    if st.button("Predict"):
-        input_data = np.array([[age, screen_time, data_usage]])  # Add all features
-        prediction = best_model.predict(input_data)
-        st.write(f"Predicted Primary Use: {prediction[0]}")
+    # Normalize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
 
-        
+    # Apply KMeans Clustering
+    kmeans = KMeans(n_clusters=4, random_state=42)
+    df['Cluster'] = kmeans.fit_predict(X_scaled)
+
+    # Streamlit App Layout
+    st.title("📱 Phone Usage Behavior Analysis")
+
+    # --- 1. Display EDA Visualizations ---
+    st.subheader("Exploratory Data Analysis")
+
+    # Histogram of Screen Time
+    fig, ax = plt.subplots()
+    sns.histplot(df['Screen Time (hrs/day)'], bins=20, kde=True, ax=ax)
+    ax.set_title("Distribution of Screen Time")
+    st.pyplot(fig)
+
+    # --- 2. User Input for Primary Use Prediction ---
+    st.subheader("📊 Enter User Data for Classification")
+    screen_time = st.slider("Screen Time (hrs/day)", 0.5, 12.0, 3.0)
+    data_usage = st.slider("Data Usage (GB/month)", 0.1, 100.0, 10.0)
+    calls_duration = st.slider("Calls Duration (mins/day)", 0, 300, 60)
+    num_apps = st.slider("Number of Apps Installed", 5, 100, 30)
+    social_media = st.slider("Social Media Time (hrs/day)", 0, 10, 2)
+    streaming_time = st.slider("Streaming Time (hrs/day)", 0, 10, 2)
+    gaming_time = st.slider("Gaming Time (hrs/day)", 0, 10, 2)
+
+    user_input = np.array([[screen_time, data_usage, calls_duration, num_apps, social_media, streaming_time, gaming_time]])
+    user_input_scaled = scaler.transform(user_input)
+
+    # --- 3. Predict Cluster ---
+    st.subheader("📌 Cluster Prediction")
+    predicted_cluster = kmeans.predict(user_input_scaled)[0]
+    st.write(f"The user belongs to **Cluster {predicted_cluster}**")
+
+    # Display Clustering Results
+    st.subheader("📍 Cluster Analysis")
+    fig, ax = plt.subplots()
+    sns.scatterplot(x=df['Screen Time (hrs/day)'], y=df['Data Usage (GB/month)'], hue=df['Cluster'], palette='tab10', ax=ax)
+    ax.set_title("Clusters based on Screen Time vs Data Usage")
+    st.pyplot(fig)
+
+<img width="365" alt="Image" src="https://github.com/user-attachments/assets/09a5ec20-2d93-4865-b9df-3674eabb7843" />
+
+
+<img width="653" alt="Image" src="https://github.com/user-attachments/assets/eba0ad0e-22da-426d-86e3-12956e38b601" />
+
+
