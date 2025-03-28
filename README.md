@@ -462,9 +462,10 @@ Right now, Gradient Boosting is the best choice because:
     ax.set_title("Clusters based on Screen Time vs Data Usage")
     st.pyplot(fig)
 
-<img width="365" alt="Image" src="https://github.com/user-attachments/assets/09a5ec20-2d93-4865-b9df-3674eabb7843" />
+<img width="397" alt="Image" src="https://github.com/user-attachments/assets/b386c8bd-4cf9-4cd0-90e4-ba8396a6fc2c" />
 
 
-<img width="653" alt="Image" src="https://github.com/user-attachments/assets/eba0ad0e-22da-426d-86e3-12956e38b601" />
+
+<img width="397" alt="Image" src="https://github.com/user-attachments/assets/3d2cb6d9-66be-408c-8383-cc3d52471dda" />
 
 
