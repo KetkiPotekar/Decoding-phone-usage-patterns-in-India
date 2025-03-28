@@ -133,4 +133,6 @@ Design a system to analyze mobile device usage and user behavior by using a data
     plt.tight_layout()
     plt.show()
 
-    
+    <img width="547" alt="Image" src="https://github.com/user-attachments/assets/ed982a6d-c013-40eb-b638-a511ea709fbe" />
+
+    <img width="313" alt="Image" src="https://github.com/user-attachments/assets/442f4b73-beff-46b4-bb06-7cdd3c90e371" />
